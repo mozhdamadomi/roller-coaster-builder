@@ -27,8 +27,15 @@ export function RideCamera() {
     
     const slope = tangent.y;
     const baseSpeed = rideSpeed;
-    const gravityEffect = -slope * 0.5;
-    const speed = Math.max(0.05, baseSpeed + gravityEffect);
+    
+    let speedMultiplier = 1.0;
+    if (slope < 0) {
+      speedMultiplier = 1.0 + Math.abs(slope) * 3.0;
+    } else if (slope > 0) {
+      speedMultiplier = Math.max(0.2, 1.0 - slope * 2.5);
+    }
+    
+    const speed = baseSpeed * speedMultiplier;
     
     const progressDelta = (speed * delta) / curveLength;
     let newProgress = rideProgress + progressDelta;
