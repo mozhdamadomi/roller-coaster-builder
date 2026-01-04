@@ -194,17 +194,35 @@ export const useRollerCoaster = create<RollerCoasterState>((set, get) => ({
         .add(forward.clone().multiplyScalar(forwardSeparation))
         .add(right.clone().multiplyScalar(exitSeparation));
       
-      // Simple transition from corkscrew exit to next point
+      // Smooth transition from corkscrew exit to next point with multiple easing points
       const transitionPoints: TrackPoint[] = [];
+      
+      // First transition point: continue in loop's forward direction to ease out
+      const exitPoint1 = loopExit.clone()
+        .add(forward.clone().multiplyScalar(3));
+      transitionPoints.push({
+        id: `point-${++pointCounter}`,
+        position: exitPoint1,
+        tilt: 0
+      });
+      
+      // Second transition point: further along, starting to curve toward next point
+      const exitPoint2 = loopExit.clone()
+        .add(forward.clone().multiplyScalar(6));
+      transitionPoints.push({
+        id: `point-${++pointCounter}`,
+        position: exitPoint2,
+        tilt: 0
+      });
       
       if (nextPoint) {
         const nextPos = nextPoint.position.clone();
         
-        // Single smooth transition point between loop exit and next point
-        const midPoint = loopExit.clone().lerp(nextPos, 0.5);
+        // Third transition: blend toward next point
+        const blendPoint = exitPoint2.clone().lerp(nextPos, 0.5);
         transitionPoints.push({
           id: `point-${++pointCounter}`,
-          position: midPoint,
+          position: blendPoint,
           tilt: 0
         });
       }
