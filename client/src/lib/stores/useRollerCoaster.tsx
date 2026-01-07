@@ -254,8 +254,8 @@ export const useRollerCoaster = create<RollerCoasterState>((set, get) => ({
       const nextPoint = state.trackPoints[pointIndex + 1];
       
       // Build helical loop with mild corkscrew
-      // Lateral offset ramps up then tapers back down for smooth exit
-      for (let i = 1; i <= totalLoopPoints; i++) {
+      // Start at i=0 (theta=0) to avoid gap between entry point and loop start
+      for (let i = 0; i <= totalLoopPoints; i++) {
         const t = i / totalLoopPoints; // 0 to 1
         const theta = t * Math.PI * 2; // 0 to 2π
         
@@ -327,9 +327,9 @@ export const useRollerCoaster = create<RollerCoasterState>((set, get) => ({
         }
       }
       
-      // Combine: keep ALL original points
+      // Combine: exclude the original entry point since loop starts at theta=0 (same position)
       const newTrackPoints = [
-        ...state.trackPoints.slice(0, pointIndex + 1),
+        ...state.trackPoints.slice(0, pointIndex),  // Exclude the entry point itself
         ...loopPoints,
         ...straightExitPoints,
         ...state.trackPoints.slice(pointIndex + 1)
