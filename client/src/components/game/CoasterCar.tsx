@@ -25,6 +25,7 @@ interface BarrelRollFrame {
 }
 
 // Eased barrel roll with zero angular velocity at endpoints
+// Uses (1-cos(θ)) for vertical to keep track ABOVE entry point
 function sampleBarrelRollAnalytically(
   frame: BarrelRollFrame,
   t: number
@@ -36,16 +37,17 @@ function sampleBarrelRollAnalytically(
   const theta = twoPi * (t - Math.sin(twoPi * t) / twoPi);
   const dThetaDt = twoPi * (1 - Math.cos(twoPi * t));
   
+  // Position using (1-cos(θ)) keeps track above entry height
   const point = new THREE.Vector3()
     .copy(entryPos)
     .addScaledVector(forward, pitch * t)
-    .addScaledVector(R0, radius * (Math.cos(theta) - 1))
-    .addScaledVector(U0, radius * Math.sin(theta));
+    .addScaledVector(U0, radius * (1 - Math.cos(theta)))
+    .addScaledVector(R0, radius * Math.sin(theta));
   
   const tangent = new THREE.Vector3()
     .copy(forward).multiplyScalar(pitch)
-    .addScaledVector(R0, -radius * Math.sin(theta) * dThetaDt)
-    .addScaledVector(U0, radius * Math.cos(theta) * dThetaDt)
+    .addScaledVector(U0, radius * Math.sin(theta) * dThetaDt)
+    .addScaledVector(R0, radius * Math.cos(theta) * dThetaDt)
     .normalize();
   
   const rotatedUp = new THREE.Vector3()
